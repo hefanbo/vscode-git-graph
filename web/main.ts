@@ -1162,6 +1162,22 @@ class GitGraphView {
 			}
 		], [
 			{
+				title: 'Restore' + (globalState.alwaysAcceptRestoreCommit ? '' : ELLIPSIS),
+				visible: visibility.restore,
+				onClick: () => {
+					const restoreCommit = () => runAction({ command: 'restoreCommit', repo: this.currentRepo, commitHash: hash }, 'Restore Commit');
+					if (globalState.alwaysAcceptRestoreCommit) {
+						restoreCommit();
+					} else {
+						dialog.showCheckbox('Are you sure you want to restore commit <b><i>' + abbrevCommit(hash) + '</i></b>?', 'Always Accept', false, 'Yes, restore', (alwaysAccept) => {
+							if (alwaysAccept) {
+								updateGlobalViewState('alwaysAcceptRestoreCommit', true);
+							}
+							restoreCommit();
+						}, target);
+					}
+				}
+			}, {
 				title: 'Checkout' + (globalState.alwaysAcceptCheckoutCommit ? '' : ELLIPSIS),
 				visible: visibility.checkout,
 				onClick: () => {
@@ -1730,9 +1746,10 @@ class GitGraphView {
 		dialog.showForm('Are you sure you want to merge ' + actionOn.toLowerCase() + ' <b><i>' + escapeHtml(name) + '</i></b> into ' + (this.gitBranchHead !== null ? '<b><i>' + escapeHtml(this.gitBranchHead) + '</i></b> (the current branch)' : 'the current branch') + '?', [
 			{ type: DialogInputType.Checkbox, name: 'Create a new commit even if fast-forward is possible', value: this.config.dialogDefaults.merge.noFastForward },
 			{ type: DialogInputType.Checkbox, name: 'Squash Commits', value: this.config.dialogDefaults.merge.squash, info: 'Create a single commit on the current branch whose effect is the same as merging this ' + actionOn.toLowerCase() + '.' },
+			{ type: DialogInputType.Checkbox, name: 'Use merge strategy: ours', value: this.config.dialogDefaults.merge.strategyOurs },
 			{ type: DialogInputType.Checkbox, name: 'No Commit', value: this.config.dialogDefaults.merge.noCommit, info: 'The changes of the merge will be staged but not committed, so that you can review and/or modify the merge result before committing.' }
 		], 'Yes, merge', (values) => {
-			runAction({ command: 'merge', repo: this.currentRepo, obj: obj, actionOn: actionOn, createNewCommit: <boolean>values[0], squash: <boolean>values[1], noCommit: <boolean>values[2] }, 'Merging ' + actionOn);
+			runAction({ command: 'merge', repo: this.currentRepo, obj: obj, actionOn: actionOn, createNewCommit: <boolean>values[0], squash: <boolean>values[1], strategyOurs: <boolean>values[2], noCommit: <boolean>values[3] }, 'Merging ' + actionOn);
 		}, target);
 	}
 
@@ -3317,6 +3334,9 @@ window.addEventListener('load', () => {
 				break;
 			case 'checkoutCommit':
 				refreshOrDisplayError(msg.error, 'Unable to Checkout Commit');
+				break;
+			case 'restoreCommit':
+				finishOrDisplayError(msg.error, 'Unable to Restore Commit', true);
 				break;
 			case 'cherrypickCommit':
 				refreshAndDisplayErrors(msg.errors, 'Unable to Cherry Pick Commit');

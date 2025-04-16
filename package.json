@@ -206,6 +206,10 @@
 									"type": "boolean",
 									"title": "Create Branch..."
 								},
+								"restore": {
+									"type": "boolean",
+									"title": "Restore..."
+								},
 								"checkout": {
 									"type": "boolean",
 									"title": "Checkout..."
@@ -615,6 +619,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Default state of the \"No Commit\" checkbox."
+				},
+				"git-graph.dialog.merge.strategyOurs": {
+					"type": "boolean",
+					"default": false,
+					"description": "Default state of the \"Use merge strategy: ours\" checkbox."
 				},
 				"git-graph.dialog.merge.noFastForward": {
 					"type": "boolean",

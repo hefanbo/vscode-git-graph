@@ -1021,12 +1021,15 @@ export class DataSource extends Disposable {
 	 * @param noCommit Is `--no-commit` enabled.
 	 * @returns The ErrorInfo from the executed command.
 	 */
-	public merge(repo: string, obj: string, actionOn: MergeActionOn, createNewCommit: boolean, squash: boolean, noCommit: boolean) {
+	public merge(repo: string, obj: string, actionOn: MergeActionOn, createNewCommit: boolean, squash: boolean, strategyOurs: boolean, noCommit: boolean) {
 		const args = ['merge', obj], config = getConfig();
 		if (squash) {
 			args.push('--squash');
 		} else if (createNewCommit) {
 			args.push('--no-ff');
+		}
+		if (strategyOurs) {
+			args.push('-s', 'ours');
 		}
 		if (noCommit) {
 			args.push('--no-commit');
@@ -1086,6 +1089,16 @@ export class DataSource extends Disposable {
 
 
 	/* Git Action Methods - Commits */
+
+	/**
+	 * Restore a commit in a repository.
+	 * @param repo The path of the repository.
+	 * @param commitHash The hash of the commit to check out.
+	 * @returns The ErrorInfo from the executed command.
+	 */
+	public restoreCommit(repo: string, commitHash: string) {
+		return this.runGitCommand(['restore', '--source=' + commitHash, ':/'], repo);
+	}
 
 	/**
 	 * Checkout a commit in a repository.

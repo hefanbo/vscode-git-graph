@@ -215,6 +215,12 @@ export class GitGraphView extends Disposable {
 					errors: errorInfos
 				});
 				break;
+			case 'restoreCommit':
+				this.sendMessage({
+					command: 'restoreCommit',
+					error: await this.dataSource.restoreCommit(msg.repo, msg.commitHash)
+				});
+				break;
 			case 'checkoutCommit':
 				this.sendMessage({
 					command: 'checkoutCommit',
@@ -449,7 +455,7 @@ export class GitGraphView extends Disposable {
 				this.sendMessage({
 					command: 'merge',
 					actionOn: msg.actionOn,
-					error: await this.dataSource.merge(msg.repo, msg.obj, msg.actionOn, msg.createNewCommit, msg.squash, msg.noCommit)
+					error: await this.dataSource.merge(msg.repo, msg.obj, msg.actionOn, msg.createNewCommit, msg.squash, msg.strategyOurs, msg.noCommit)
 				});
 				break;
 			case 'openExtensionSettings':
